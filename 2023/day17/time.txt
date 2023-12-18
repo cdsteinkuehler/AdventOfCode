@@ -1,0 +1,14 @@
+Part 1:
+real    185m58.776s
+user    149m38.195s
+sys     44m16.675s
+
+Part 1 with proper heap (y.sh):
+real    9m46.731s
+user    9m9.077s
+sys     0m36.397s
+
+Part 2 with proper heap:
+real    131m52.684s
+user    130m7.412s
+sys     1m43.437s
