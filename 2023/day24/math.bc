@@ -1,0 +1,120 @@
+#!/usr/bin/bc
+
+define void phail (i) {
+	print "Hailstone: ", i, "\n"
+	print "  Pos:"
+	print " ", px[i]
+	print " ", py[i]
+	print " ", pz[i], "\n"
+	print "  Vel:"
+	print " ", vx[i]
+	print " ", vy[i]
+	print " ", vz[i], "\n"
+}
+
+define dotprodn (x, y, z) {
+	return ( x * nx + y * ny + z * nz )
+}
+
+define void xprod (i, j) {
+	nx = py[i] * pz[j] - pz[i] * py[j]
+	ny = pz[i] * px[j] - px[i] * pz[j]
+	nz = px[i] * py[j] - py[i] * px[j]
+}
+
+define void ipl (i) {
+	a = dotprodn( 0 - px[i], 0 - py[i], 0 - pz[i] )
+	b = dotprodn( vx[i], vy[i], vz[i] )
+
+	# Sanity check, upcoming division is integer
+	#print "a b: ", a, " ", b, "\n"
+	#print "Modulo: ", a % b, "\n"
+
+	t[i] = a / b
+	
+	x[i] = px[i] + vx[i] * t[i]
+	y[i] = py[i] + vy[i] * t[i]
+	z[i] = pz[i] + vz[i] * t[i]
+}
+
+# Read data for 4 hailstones from stdin
+for ( i=0 ; i<4 ; i++ ) {
+	px[i]=read()
+	py[i]=read()
+	pz[i]=read()
+	vx[i]=read()
+	vy[i]=read()
+	vz[i]=read()
+	phail(i)
+}
+
+# Stash our original reference position for later
+opx=px[0]
+opy=py[0]
+opz=pz[0]
+ovx=vx[0]
+ovy=vy[0]
+ovz=vz[0]
+
+# Normalize the reference frame to hail 1 so it's at p=0,0,0 v=0,0,0
+print "\nOffset: ", opx, " ", opy, " ", opz, " ", ovx, " ", ovy, " ", ovz, "\n"
+for ( i=0 ; i<4 ; i++ ) {
+	px[i]=px[i]-opx
+	py[i]=py[i]-opy
+	pz[i]=pz[i]-opz
+	vx[i]=vx[i]-ovx
+	vy[i]=vy[i]-ovy
+	vz[i]=vz[i]-ovz
+	phail(i)
+}
+
+# Create second point for hailstone[1]
+px[4]=px[1]+vx[1]
+py[4]=py[1]+vy[1]
+pz[4]=pz[1]+vz[1]
+
+# Create a plane with our three points [0] [1] and [4]
+xprod(1, 4)
+print "Normal: ", nx, " ", ny, " ", nz, "\n"
+
+# Get two more points that intersect with our plane
+ipl(2)
+ipl(3)
+
+print "P2: ", x[2], " ", y[2], " ", z[2], " ", "\n"
+print "T2: ", t[2], "\n"
+print "P3: ", x[3], " ", y[3], " ", z[3], " ", "\n"
+print "T3: ", t[3], "\n"
+
+# Now figure out how to throw the rock
+dt = t[2] - t[3]
+xv = x[2] - x[3]
+yv = y[2] - y[3]
+zv = z[2] - z[3]
+
+# Sanity check, upcoming division is integer
+#print "Vel mod: dt=", dt," : ", xv % dt, " ", yv % dt, " ", zv % dt, "\n"
+xv /= dt
+yv /= dt
+zv /= dt
+print "Vel: ", xv, " ", yv, " ", zv, "\n"
+
+xp = x[2] - xv * t[2]
+yp = y[2] - yv * t[2]
+zp = z[2] - zv * t[2]
+print "Pos: ", xp, " ", yp, " ", zp, "\n"
+
+# Return to the orignal coordinate system...
+xp += opx
+yp += opy
+zp += opz
+xv += ovx
+yv += ovy
+zv += ovz
+print "Rock Pos: ", xp, " ", yp, " ", zp, "\n"
+print "Rock Vel: ", xv, " ", yv, " ", zv, "\n"
+
+# ...and we're done!
+print "\nAnswer: ", xp + yp + zp, "\n"
+
+quit
