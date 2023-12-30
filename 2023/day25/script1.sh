@@ -4,6 +4,7 @@ function count () {
 	R=""
 	RX=0
 	RL=0
+	RN=""
 	C=0
 	for N in ${A} ; do
 		X=${AC[$N]:-0}
@@ -17,6 +18,11 @@ function count () {
 			R=$N
 			RX=$X
 			RL=${#G[$N]}
+		fi
+
+		# We can move any node with more than 2 external links
+		if (( X > 1 )) ; then
+			RN="$RN $N"
 		fi
 		let C+=$X
 	done
@@ -36,14 +42,17 @@ function separate () {
 	i=0
 
 	count
-	echo "R: $R, C: $C"
+	echo "R: $R, C: $C Remove: ${RN:-$R}"
 
 	while (( $C != 3 )) ; do
-		A="${A//$R/}"
-		B="$B $R"
-		remove $R
+		# Move nodes from A to B
+		for N in ${RN:-$R} ; do
+			A="${A//$N/}"
+			B="$B $N"
+			remove $N
+		done
 		count
-		echo "$i R: $R, C: $C"
+		echo "$i C: $C Remove: ${RN:-$R}"
 	done
 }
 
