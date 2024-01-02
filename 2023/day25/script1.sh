@@ -20,7 +20,7 @@ function count () {
 			RL=${#G[$N]}
 		fi
 
-		# We can move any node with more than 2 external links
+		# We can move any node with 2 or more external links
 		if (( X > 1 )) ; then
 			RN="$RN $N"
 		fi
